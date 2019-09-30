@@ -56,6 +56,11 @@ export default {
       type: [Function, Boolean],
       default: true
     },
+    
+    torch: {
+      type: [Function, Boolean],
+      default: false
+    },
 
     worker: {
       type: Function,
@@ -153,7 +158,11 @@ export default {
 
     constraints() {
       this.$emit("init", this.init());
-    }
+    },
+    
+    cameraInstance: Function (val) {
+    this.torchlight()
+    }    
   },
 
   mounted() {
@@ -182,6 +191,21 @@ export default {
           this.cameraInstance.stop();
         }
       }
+    },
+    
+    torchlight () {
+      this.camerastream = this.cameraInstance["stream"];
+      const track = this.camerastream.getVideoTracks()[0];
+      const imageCapture = new imageCapture(track)
+      const photoCapabilities = imageCapture.getPhotoCapabilities().then(() => {
+        if (this.torch === true) {
+          track.applyConstraints({advance: [{torch: true}]})
+          console.log('torchon', this.camerastream)
+        } else {
+          track.applyConstraints({advance: [{torch: false}]})
+          console.log('torchon', this.camerastream)
+        }
+      })
     },
 
     startScanning() {
